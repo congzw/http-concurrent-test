@@ -21,6 +21,8 @@ namespace HttpTestWin.ViewModel
         public string LastTestUri { get; set; }
         public string LastTestData { get; set; }
 
+        public string TraceApiEndPoint { get; set; }
+
         public static HttpTestConfig Instance = new HttpTestConfig();
     }
 }

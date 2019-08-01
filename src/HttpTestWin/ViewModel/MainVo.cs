@@ -10,20 +10,20 @@ namespace HttpTestWin.ViewModel
 {
     public class MainVo
     {
-        private readonly ISimpleConfigFile _simpleConfigFile;
-        private readonly IWebApiTester _webApiHelper;
-        private readonly ISimpleLog _simpleLog;
+        protected readonly ISimpleConfigFile SimpleConfigFile;
+        protected readonly IWebApiTester WebApiHelper;
+        protected readonly ISimpleLog SimpleLog;
 
         public MainVo(ISimpleConfigFile simpleConfigFile, IWebApiTester webApiHelper)
         {
-            _simpleConfigFile = simpleConfigFile;
-            _webApiHelper = webApiHelper;
-            _simpleLog = SimpleLogFactory.Instance.CreateLogFor(this);
+            SimpleConfigFile = simpleConfigFile;
+            WebApiHelper = webApiHelper;
+            SimpleLog = SimpleLogFactory.Instance.CreateLogFor(this);
         }
 
         public HttpTestConfig LoadConfig()
         {
-            var config = AsyncHelper.RunSync(() => _simpleConfigFile.ReadFile<HttpTestConfig>(null));
+            var config = AsyncHelper.RunSync(() => SimpleConfigFile.ReadFile<HttpTestConfig>(null));
             if (config == null)
             {
                 config = HttpTestConfig.Instance;
@@ -33,10 +33,10 @@ namespace HttpTestWin.ViewModel
 
         public void SaveConfig(HttpTestConfig config)
         {
-            AsyncHelper.RunSync(() => _simpleConfigFile.SaveFile(config));
+            AsyncHelper.RunSync(() => SimpleConfigFile.SaveFile(config));
         }
 
-        public Task<TestResults> StartTest(HttpTestConfig config, CancellationToken? ct = null)
+        public virtual Task<TestResults> StartTest(HttpTestConfig config, CancellationToken? ct = null)
         {
             var testResults = new TestResults();
             if (config == null)
@@ -86,7 +86,7 @@ namespace HttpTestWin.ViewModel
             Parallel.For(0, config.ConcurrentCount, parallelOptions, i =>
             {
                 var index = i;
-                var testResult = AsyncHelper.RunSync(() => RunHttpTest(index, testResults.Uri, testResults.FailExpiredMs));
+                var testResult = AsyncHelper.RunSync(() => RunHttpTest(index, testResults.Uri, testResults.FailExpiredMs, testResults.HttpMethod, testResults.Data));
                 results.Add(testResult);
             });
 
@@ -94,22 +94,29 @@ namespace HttpTestWin.ViewModel
             taskCompletionSource.SetResult(testResults);
             return taskCompletionSource.Task;
         }
-
-        private async Task<TestResult> RunHttpTest(int index, string uri, int failExpiredMs)
+        
+        private async Task<TestResult> RunHttpTest(int index, string uri, int failExpiredMs, string httpMethod, string jsonData = null)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            //var isOk = AsyncHelper.RunSync(() => _webApiHelper.CheckTargetStatus(uri, failExpiredMs));
-            var isOk = await _webApiHelper.TestHttpGet(uri, failExpiredMs).ConfigureAwait(false);
+            bool isOk = false;
+            if (httpMethod == "Get")
+            {
+                isOk = await WebApiHelper.TestHttpGet(uri, failExpiredMs).ConfigureAwait(false);
+            }
+            else
+            {
+                isOk = await WebApiHelper.TestHttpPost(uri, jsonData, failExpiredMs).ConfigureAwait(false);
+            }
             stopwatch.Stop();
             var testResult = new TestResult();
             testResult.Success = isOk;
             testResult.ElapsedMs = stopwatch.ElapsedMilliseconds;
-            testResult.Message = string.Format("{0} => {1}, take {2:0.00} ms",
+            testResult.Message = string.Format("{0:000} => {1}, take {2:0.00} ms",
                 index,
                 isOk ? "Success" : "Fail",
                 stopwatch.ElapsedMilliseconds);
-            _simpleLog.Log(testResult.Message);
+            SimpleLog.Log(testResult.Message);
             return testResult;
         }
 

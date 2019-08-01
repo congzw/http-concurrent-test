@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Windows.Forms;
 using Common;
 using HttpTestWin.ViewModel;
@@ -21,8 +20,8 @@ namespace HttpTestWin
             this.Closing += MainForm_Closing;
             this.cbxMethod.Items.Add("Get");
             this.cbxMethod.Items.Add("Post");
-            this.cbxMethod.Items.Add("Put");
-            this.cbxMethod.Items.Add("Delete");
+            //this.cbxMethod.Items.Add("Put");
+            //this.cbxMethod.Items.Add("Delete");
             this.cbxMethod.DropDownStyle = ComboBoxStyle.DropDownList;
             this.txtResult.ScrollBars = ScrollBars.Vertical;
 
@@ -34,8 +33,8 @@ namespace HttpTestWin
             this.cbxParallelCount.DropDownStyle = ComboBoxStyle.DropDownList;
 
             MainVo = SimpleIoc.Instance.Resolve<MainVo>();
-            var httpTestConfig = MainVo.LoadConfig();
-            SetValueWithConfig(httpTestConfig);
+            HttpTestConfig.Instance = MainVo.LoadConfig();
+            SetValueWithConfig(HttpTestConfig.Instance);
         }
 
 
@@ -93,8 +92,8 @@ namespace HttpTestWin
 
             var method = this.cbxMethod.SelectedItem.ToString();
             var uri = this.txtUri.Text.Trim();
-            var data = this.txtData.Text.Trim();
-            var httpTestConfig = new HttpTestConfig();
+            var data = this.txtData.Text.Trim().Replace("\r\n","");
+            var httpTestConfig = HttpTestConfig.Instance;
             httpTestConfig.MaxParallelCount = int.Parse(this.cbxParallelCount.SelectedItem.ToString());
             httpTestConfig.ConcurrentCount = concurrent;
             httpTestConfig.FailExpiredMs = expiredMs;

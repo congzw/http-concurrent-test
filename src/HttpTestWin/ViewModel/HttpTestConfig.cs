@@ -12,6 +12,7 @@ namespace HttpTestWin.ViewModel
             FailExpiredMs = 50;
         }
 
+        public bool LogFileEnabled { get; set; }
         public int MaxParallelCount { get; set; }
         public int ConcurrentCount { get; set; }
         public string HttpMethod { get; set; }

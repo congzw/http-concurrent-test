@@ -11,9 +11,9 @@ namespace HttpTestWin.App
             simpleIoc.Register<ISimpleConfigFile>(() => SimpleConfigFactory.ResolveFile());
             simpleIoc.Register<HttpTestConfig>(() => httpTestConfig);
 
-            simpleIoc.Register<IWebApiHelper>(() => WebApiHelper.Resolve());
-            simpleIoc.Register<WebApiHelper>(() => (WebApiHelper)simpleIoc.Resolve<IWebApiHelper>());
-            simpleIoc.Register<MainVo>(() => new MainVo(simpleIoc.Resolve<ISimpleConfigFile>(), simpleIoc.Resolve<IWebApiHelper>()));
+            simpleIoc.Register<IWebApiTester>(() => WebApiTester.Resolve());
+            simpleIoc.Register<WebApiTester>(() => (WebApiTester)simpleIoc.Resolve<IWebApiTester>());
+            simpleIoc.Register<MainVo>(() => new MainVo(simpleIoc.Resolve<ISimpleConfigFile>(), simpleIoc.Resolve<IWebApiTester>()));
         }
     }
 }

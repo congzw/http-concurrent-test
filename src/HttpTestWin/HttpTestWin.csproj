@@ -58,6 +58,7 @@
     <Compile Include="Libs\Common\SimpleJson.cs" />
     <Compile Include="Libs\Common\SimpleLog.cs" />
     <Compile Include="Libs\Common\WebApiHelper.cs" />
+    <Compile Include="Libs\Common\WebApiTester.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

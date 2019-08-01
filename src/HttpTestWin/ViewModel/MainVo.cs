@@ -11,16 +11,16 @@ namespace HttpTestWin.ViewModel
     public class MainVo
     {
         private readonly ISimpleConfigFile _simpleConfigFile;
-        private readonly IWebApiHelper _webApiHelper;
+        private readonly IWebApiTester _webApiHelper;
         private readonly ISimpleLog _simpleLog;
 
-        public MainVo(ISimpleConfigFile simpleConfigFile, IWebApiHelper webApiHelper)
+        public MainVo(ISimpleConfigFile simpleConfigFile, IWebApiTester webApiHelper)
         {
             _simpleConfigFile = simpleConfigFile;
             _webApiHelper = webApiHelper;
             _simpleLog = SimpleLogFactory.Instance.CreateLogFor(this);
         }
-        
+
         public HttpTestConfig LoadConfig()
         {
             var config = AsyncHelper.RunSync(() => _simpleConfigFile.ReadFile<HttpTestConfig>(null));
@@ -100,7 +100,7 @@ namespace HttpTestWin.ViewModel
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             //var isOk = AsyncHelper.RunSync(() => _webApiHelper.CheckTargetStatus(uri, failExpiredMs));
-            var isOk =await _webApiHelper.CheckTargetStatus(uri, failExpiredMs).ConfigureAwait(false);
+            var isOk = await _webApiHelper.TestHttpGet(uri, failExpiredMs).ConfigureAwait(false);
             stopwatch.Stop();
             var testResult = new TestResult();
             testResult.Success = isOk;
@@ -139,6 +139,15 @@ namespace HttpTestWin.ViewModel
                 summary.AvgElapsedMs));
 
             sb.AppendLine();
+            sb.AppendLine(string.Format("Total Fail: {0}", summary.FailCount));
+            sb.AppendLine("===================");
+            var failResults = results.Items.Where(x => !x.Success);
+            foreach (var item in failResults)
+            {
+                sb.AppendLine(item.Message);
+            }
+
+            sb.AppendLine();
             sb.AppendLine(string.Format("Total Success: {0}", summary.SuccessCount));
             sb.AppendLine("===================");
             var successResults = results.Items.Where(x => x.Success);
@@ -147,13 +156,6 @@ namespace HttpTestWin.ViewModel
                 sb.AppendLine(item.Message);
             }
 
-            sb.AppendLine(string.Format("Total Fail: {0}", summary.FailCount));
-            sb.AppendLine("===================");
-            var failResults = results.Items.Where(x => !x.Success);
-            foreach (var item in failResults)
-            {
-                sb.AppendLine(item.Message);
-            }
 
             return sb.ToString();
         }

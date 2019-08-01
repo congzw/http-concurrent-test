@@ -52,9 +52,12 @@
     <Compile Include="App\SimpleIocExtensions.cs" />
     <Compile Include="Libs\Common\AsyncFile.cs" />
     <Compile Include="Libs\Common\AsyncHelper.cs" />
+    <Compile Include="Libs\Common\DateHelper.cs" />
     <Compile Include="Libs\Common\SimpleConfig.cs" />
     <Compile Include="Libs\Common\SimpleIoc.cs" />
     <Compile Include="Libs\Common\SimpleJson.cs" />
+    <Compile Include="Libs\Common\SimpleLog.cs" />
+    <Compile Include="Libs\Common\WebApiHelper.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -63,7 +66,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModel\HttpTestConfig.cs" />
     <Compile Include="ViewModel\MainVo.cs" />
+    <Compile Include="ViewModel\TestResults.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

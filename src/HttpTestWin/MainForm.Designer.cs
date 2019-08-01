@@ -37,10 +37,12 @@
             this.label3 = new System.Windows.Forms.Label();
             this.txtResult = new System.Windows.Forms.TextBox();
             this.lblCount = new System.Windows.Forms.Label();
-            this.txtCount = new System.Windows.Forms.TextBox();
+            this.txtConcurrentCount = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.txtExpired = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.cbxParallelCount = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // label1
@@ -129,13 +131,13 @@
             this.lblCount.TabIndex = 35;
             this.lblCount.Text = "Concurrent";
             // 
-            // txtCount
+            // txtConcurrentCount
             // 
-            this.txtCount.Location = new System.Drawing.Point(249, 12);
-            this.txtCount.Name = "txtCount";
-            this.txtCount.Size = new System.Drawing.Size(60, 21);
-            this.txtCount.TabIndex = 36;
-            this.txtCount.Text = "10";
+            this.txtConcurrentCount.Location = new System.Drawing.Point(249, 12);
+            this.txtConcurrentCount.Name = "txtConcurrentCount";
+            this.txtConcurrentCount.Size = new System.Drawing.Size(60, 21);
+            this.txtConcurrentCount.TabIndex = 36;
+            this.txtConcurrentCount.Text = "10";
             // 
             // label4
             // 
@@ -148,30 +150,49 @@
             // 
             // txtExpired
             // 
-            this.txtExpired.Location = new System.Drawing.Point(419, 12);
+            this.txtExpired.Location = new System.Drawing.Point(550, 12);
             this.txtExpired.Name = "txtExpired";
-            this.txtExpired.Size = new System.Drawing.Size(60, 21);
+            this.txtExpired.Size = new System.Drawing.Size(35, 21);
             this.txtExpired.TabIndex = 39;
             this.txtExpired.Text = "20";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(318, 16);
+            this.label5.Location = new System.Drawing.Point(449, 16);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(95, 12);
             this.label5.TabIndex = 38;
             this.label5.Text = "Fail Expired ms";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(325, 16);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(71, 12);
+            this.label6.TabIndex = 40;
+            this.label6.Text = "MaxParallel";
+            // 
+            // cbxParallelCount
+            // 
+            this.cbxParallelCount.FormattingEnabled = true;
+            this.cbxParallelCount.Location = new System.Drawing.Point(402, 12);
+            this.cbxParallelCount.Name = "cbxParallelCount";
+            this.cbxParallelCount.Size = new System.Drawing.Size(41, 20);
+            this.cbxParallelCount.TabIndex = 41;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 361);
+            this.Controls.Add(this.cbxParallelCount);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.txtExpired);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.txtCount);
+            this.Controls.Add(this.txtConcurrentCount);
             this.Controls.Add(this.lblCount);
             this.Controls.Add(this.txtResult);
             this.Controls.Add(this.label3);
@@ -199,10 +220,12 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txtResult;
         private System.Windows.Forms.Label lblCount;
-        private System.Windows.Forms.TextBox txtCount;
+        private System.Windows.Forms.TextBox txtConcurrentCount;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtExpired;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ComboBox cbxParallelCount;
     }
 }
 

@@ -10,6 +10,8 @@ namespace HttpTestWin.ViewModel
             Items = new List<TestResult>();
         }
 
+        public string HttpMethod { get; set; }
+        public int MaxParallelCount { get; set; }
         public int FailExpiredMs { get; set; }
         public string Uri { get; set; }
         public string Data { get; set; }

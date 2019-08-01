@@ -47,6 +47,8 @@ namespace HttpTestWin.ViewModel
             testResults.FailExpiredMs = config.FailExpiredMs;
             testResults.Uri = config.LastTestUri;
             testResults.Data = config.LastTestData;
+            testResults.MaxParallelCount = config.MaxParallelCount;
+            testResults.HttpMethod = config.HttpMethod;
 
             #region not real parallel test
 
@@ -118,13 +120,15 @@ namespace HttpTestWin.ViewModel
             sb.AppendLine("===================");
             sb.AppendLine(string.Format("CreateAt: {0}", DateHelper.Instance.GetNowAsFormat()));
             sb.AppendLine(string.Format("Uri:{0}", results.Uri));
-            sb.AppendLine(string.Format("Data:{0}", results.Data));
-            sb.AppendLine(string.Format("FailExpiredMs:{0}", results.FailExpiredMs));
+            sb.AppendLine(string.Format("HttpMethod:{0}", results.HttpMethod));
+            sb.AppendLine(string.Format("MaxParallelCount:{0}", results.MaxParallelCount));
             sb.AppendLine(string.Format("ConcurrentCount:{0}", results.Items.Count));
+            sb.AppendLine(string.Format("FailExpiredMs:{0}", results.FailExpiredMs));
+            sb.AppendLine(string.Format("Data:{0}", results.Data));
 
             sb.AppendLine();
             sb.AppendLine("===================");
-            sb.AppendLine(string.Format("Success: {0}/{1} = {2:0.00}%",
+            sb.AppendLine(string.Format("Passed: {0}/{1} = {2:0.00}%",
                 summary.SuccessCount,
                 summary.TotalCount,
                 ((double)summary.SuccessCount / summary.TotalCount * 100)));

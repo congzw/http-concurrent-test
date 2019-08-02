@@ -8,13 +8,20 @@ using Common;
 
 namespace HttpTestWin.ViewModel
 {
-    public class TestClientSpanApiVo : MainVo
+    public class TestClientSpanApiVo
     {
-        public TestClientSpanApiVo(ISimpleConfigFile simpleConfigFile, IWebApiTester webApiHelper) : base(simpleConfigFile, webApiHelper)
+        protected readonly ISimpleConfigFile SimpleConfigFile;
+        protected readonly IWebApiTester WebApiHelper;
+        protected readonly ISimpleLog SimpleLog;
+
+        public TestClientSpanApiVo(ISimpleConfigFile simpleConfigFile, IWebApiTester webApiHelper)
         {
+            SimpleConfigFile = simpleConfigFile;
+            WebApiHelper = webApiHelper;
+            SimpleLog = SimpleLogFactory.Instance.CreateLogFor(this);
         }
 
-        public override Task<TestResults> StartTest(HttpTestConfig config, CancellationToken? ct = null)
+        public Task<TestResults> StartTest(HttpTestConfig config, IList<ClientSpan> clientSpans, CancellationToken? ct = null)
         {
             var testResults = new TestResults();
             if (config == null)
@@ -32,10 +39,9 @@ namespace HttpTestWin.ViewModel
             var results = new ConcurrentBag<TestResult>();
             var taskCompletionSource = new TaskCompletionSource<TestResults>();
 
-            var testClientSpans = CreateTestClientSpans(config);
             var parallelOptions = new ParallelOptions() { CancellationToken = theToken, MaxDegreeOfParallelism = config.MaxParallelCount };
 
-            Parallel.ForEach(testClientSpans, parallelOptions, (span) =>
+            Parallel.ForEach(clientSpans, parallelOptions, (span) =>
             {
                 var testResult = AsyncHelper.RunSync(() => 
                     RunTestClientSpan(WebApiHelper, testResults.FailExpiredMs, span, config));
@@ -46,7 +52,8 @@ namespace HttpTestWin.ViewModel
             taskCompletionSource.SetResult(testResults);
             return taskCompletionSource.Task;
         }
-        private IList<ClientSpan> CreateTestClientSpans(HttpTestConfig config)
+
+        public IList<ClientSpan> CreateTestClientSpans(HttpTestConfig config)
         {
             var clientSpans = new List<ClientSpan>();
             var now = DateHelper.Instance.GetDateNow();
@@ -63,6 +70,7 @@ namespace HttpTestWin.ViewModel
 
             return clientSpans;
         }
+
         private async Task<TestResult> RunTestClientSpan(IWebApiTester webApiHelper, int failExpiredMs,  ClientSpan clientSpan, HttpTestConfig config)
         {
             var stopwatch = new Stopwatch();
@@ -87,6 +95,5 @@ namespace HttpTestWin.ViewModel
             SimpleLog.Log(testResult.Message);
             return testResult;
         }
-
     }
 }

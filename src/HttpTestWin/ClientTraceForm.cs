@@ -5,25 +5,23 @@ using HttpTestWin.ViewModel;
 
 namespace HttpTestWin
 {
-    public partial class MainForm : Form
+    public partial class ClientTraceForm : Form
     {
-        public MainForm()
+        public ClientTraceForm()
         {
             InitializeComponent();
             MyInitializeComponent();
         }
 
-        public MainVo MainVo { get; set; }
+        public TestClientSpanApiVo Vo { get; set; }
 
         private void MyInitializeComponent()
         {
-            this.Closing += MainForm_Closing;
-            this.cbxMethod.Items.Add("Get");
             this.cbxMethod.Items.Add("Post");
-            //this.cbxMethod.Items.Add("Put");
-            //this.cbxMethod.Items.Add("Delete");
             this.cbxMethod.DropDownStyle = ComboBoxStyle.DropDownList;
+            this.cbxMethod.SelectedIndex = 0;
             this.txtResult.ScrollBars = ScrollBars.Vertical;
+            this.txtData.ScrollBars = ScrollBars.Vertical;
 
             var processorCount = Environment.ProcessorCount;
             for (int i = 0; i < processorCount; i++)
@@ -31,28 +29,14 @@ namespace HttpTestWin
                 this.cbxParallelCount.Items.Add(i + 1);
             }
             this.cbxParallelCount.DropDownStyle = ComboBoxStyle.DropDownList;
+            this.cbxParallelCount.SelectedIndex = processorCount - 1;
 
-            MainVo = SimpleIoc.Instance.Resolve<MainVo>();
-            HttpTestConfig.Instance = MainVo.LoadConfig();
-            SetValueWithConfig(HttpTestConfig.Instance);
+            this.btnStart.Click += BtnStart_Click;
+
+            Vo = SimpleIoc.Instance.Resolve<TestClientSpanApiVo>();
         }
 
-
-        private void MainForm_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            var config = TryReadHttpTestConfig();
-            if (config == null)
-            {
-                return;
-            }
-            MainVo.SaveConfig(config);
-        }
-
-        private void MainForm_Load(object sender, System.EventArgs e)
-        {
-        }
-
-        private async void btnStart_Click(object sender, System.EventArgs e)
+        private async void BtnStart_Click(object sender, EventArgs e)
         {
             var config = TryReadHttpTestConfig();
             if (config == null)
@@ -61,20 +45,15 @@ namespace HttpTestWin
                 return;
             }
 
-            var testResults = await MainVo.StartTest(config);
+            var testClientSpans = Vo.CreateTestClientSpans(config);
+            var testResults = await Vo.StartTest(config, testClientSpans);
             var summary = TestResultsSummary.Create(testResults.Items);
+
+            this.txtData.Text = testClientSpans.ToJson(true);
+            this.txtUri.Text = config.TraceApiEndPoint;
+
             var resultsDesc = TestResultsHelper.CreateResultsDesc(testResults, summary);
             this.txtResult.Text = resultsDesc;
-        }
-
-        private void SetValueWithConfig(HttpTestConfig httpTestConfig)
-        {
-            this.txtConcurrentCount.Text = httpTestConfig.ConcurrentCount.ToString();
-            this.cbxParallelCount.SelectedItem = httpTestConfig.MaxParallelCount;
-            this.txtExpired.Text = httpTestConfig.FailExpiredMs.ToString();
-            this.cbxMethod.SelectedItem = httpTestConfig.HttpMethod;
-            this.txtUri.Text = httpTestConfig.LastTestUri;
-            this.txtData.Text = httpTestConfig.LastTestData;
         }
 
         private HttpTestConfig TryReadHttpTestConfig()
@@ -92,7 +71,7 @@ namespace HttpTestWin
 
             var method = this.cbxMethod.SelectedItem.ToString();
             var uri = this.txtUri.Text.Trim();
-            var data = this.txtData.Text.Trim().Replace("\r\n","");
+            var data = this.txtData.Text.Trim().Replace("\r\n", "");
             var httpTestConfig = HttpTestConfig.Instance;
             httpTestConfig.MaxParallelCount = int.Parse(this.cbxParallelCount.SelectedItem.ToString());
             httpTestConfig.ConcurrentCount = concurrent;

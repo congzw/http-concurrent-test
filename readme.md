@@ -2,6 +2,7 @@
 
 ## change list
 
+- refactor and create ClientTraceForm with trace client test logic
 - add client test switch support
 - add test post support
 - complete version 0.1

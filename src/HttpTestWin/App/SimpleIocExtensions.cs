@@ -15,21 +15,16 @@ namespace HttpTestWin.App
                 simpleConfigFile.SaveFile(HttpTestConfig.Instance);
             }
 
+            HttpTestConfig.Instance = httpTestConfig;
+
             simpleIoc.Register<ISimpleConfigFile>(() => simpleConfigFile);
-            simpleIoc.Register<HttpTestConfig>(() => httpTestConfig);
+            simpleIoc.Register<HttpTestConfig>(() => HttpTestConfig.Instance);
 
             simpleIoc.Register<IWebApiTester>(() => WebApiTester.Resolve());
             simpleIoc.Register<WebApiTester>(() => (WebApiTester)simpleIoc.Resolve<IWebApiTester>());
 
-            if (!string.IsNullOrWhiteSpace(httpTestConfig.TraceApiEndPoint))
-            {
-                simpleIoc.Register<TestClientSpanApiVo>(() => new TestClientSpanApiVo(simpleIoc.Resolve<ISimpleConfigFile>(), simpleIoc.Resolve<IWebApiTester>()));
-                simpleIoc.Register<MainVo>(simpleIoc.Resolve<TestClientSpanApiVo>);
-            }
-            else
-            {
-                simpleIoc.Register<MainVo>(() => new MainVo(simpleIoc.Resolve<ISimpleConfigFile>(), simpleIoc.Resolve<IWebApiTester>()));
-            }
+            simpleIoc.Register<TestClientSpanApiVo>(() => new TestClientSpanApiVo(simpleIoc.Resolve<ISimpleConfigFile>(), simpleIoc.Resolve<IWebApiTester>()));
+            simpleIoc.Register<MainVo>(() => new MainVo(simpleIoc.Resolve<ISimpleConfigFile>(), simpleIoc.Resolve<IWebApiTester>()));
 
             var logFileEnabled = httpTestConfig.LogFileEnabled;
             SimpleLogFactory.Instance.LogFileEnabledFunc = (category) => logFileEnabled;

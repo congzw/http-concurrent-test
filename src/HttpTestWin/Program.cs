@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using Common;
 using HttpTestWin.App;
+using HttpTestWin.ViewModel;
 
 namespace HttpTestWin
 {
@@ -16,10 +17,22 @@ namespace HttpTestWin
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             var simpleIoc = SimpleIoc.Instance;
             simpleIoc.InitHttpTest();
-
+            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+
+            var httpTestConfig = simpleIoc.Resolve<HttpTestConfig>();
+            Form theForm = null;
+            if (!string.IsNullOrWhiteSpace(httpTestConfig.TraceApiEndPoint))
+            {
+                theForm = new ClientTraceForm();
+            }
+            else
+            {
+                theForm = new MainForm();
+            }
+
+            Application.Run(theForm);
         }
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

@@ -50,6 +50,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App\SimpleIocExtensions.cs" />
+    <Compile Include="ClientTraceForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ClientTraceForm.Designer.cs">
+      <DependentUpon>ClientTraceForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Libs\Common\AsyncFile.cs" />
     <Compile Include="Libs\Common\AsyncHelper.cs" />
     <Compile Include="Libs\Common\DateHelper.cs" />
@@ -72,6 +78,9 @@
     <Compile Include="ViewModel\MainVo.cs" />
     <Compile Include="ViewModel\TestClientSpanApiVo.cs" />
     <Compile Include="ViewModel\TestResults.cs" />
+    <EmbeddedResource Include="ClientTraceForm.resx">
+      <DependentUpon>ClientTraceForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

@@ -52,6 +52,7 @@ namespace HttpTestWin
             this.txtData.Text = testClientSpans.ToJson(true);
             this.txtUri.Text = config.TraceApiEndPoint;
 
+            testResults.Data = string.Empty;
             var resultsDesc = TestResultsHelper.CreateResultsDesc(testResults, summary);
             this.txtResult.Text = resultsDesc;
         }

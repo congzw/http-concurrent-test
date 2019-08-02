@@ -21,7 +21,7 @@ namespace HttpTestWin.ViewModel
             SimpleLog = SimpleLogFactory.Instance.CreateLogFor(this);
         }
 
-        public Task<TestResults> StartTest(HttpTestConfig config, IList<ClientSpan> clientSpans, CancellationToken? ct = null)
+        public Task<TestResults> StartTest(HttpTestConfig config, IList<SaveSpansArgs> saveSpansArgs, CancellationToken? ct = null)
         {
             var testResults = new TestResults();
             if (config == null)
@@ -41,7 +41,7 @@ namespace HttpTestWin.ViewModel
 
             var parallelOptions = new ParallelOptions() { CancellationToken = theToken, MaxDegreeOfParallelism = config.MaxParallelCount };
 
-            Parallel.ForEach(clientSpans, parallelOptions, (span) =>
+            Parallel.ForEach(saveSpansArgs, parallelOptions, (span) =>
             {
                 var testResult = AsyncHelper.RunSync(() => 
                     RunTestClientSpan(WebApiHelper, testResults.FailExpiredMs, span, config));
@@ -53,9 +53,9 @@ namespace HttpTestWin.ViewModel
             return taskCompletionSource.Task;
         }
 
-        public IList<ClientSpan> CreateTestClientSpans(HttpTestConfig config)
+        public IList<SaveSpansArgs> CreateTestClientSpans(HttpTestConfig config)
         {
-            var clientSpans = new List<ClientSpan>();
+            var result = new List<SaveSpansArgs>();
             var now = DateHelper.Instance.GetDateNow();
             var ticks = now.Ticks;
             var traceId = "trace_" + ticks;
@@ -64,33 +64,37 @@ namespace HttpTestWin.ViewModel
             for (int i = 0; i < config.ConcurrentCount; i++)
             {
                 var spanId = "span_" + i.ToString("");
-                var clientSpan = ClientSpan.Create(tracerId, traceId, null, spanId, "FooOp");
-                clientSpans.Add(clientSpan);
+                var saveClientSpan = SaveClientSpan.Create(now, now.AddMilliseconds(10), tracerId, traceId, null, spanId, "FooOp");
+                var saveSpansArgs = new SaveSpansArgs();
+                saveSpansArgs.Items.Add(saveClientSpan);
+                result.Add(saveSpansArgs);
             }
-
-            return clientSpans;
+            return result;
         }
 
-        private async Task<TestResult> RunTestClientSpan(IWebApiTester webApiHelper, int failExpiredMs,  ClientSpan clientSpan, HttpTestConfig config)
+        private async Task<TestResult> RunTestClientSpan(IWebApiTester webApiHelper, int failExpiredMs, SaveSpansArgs saveSpansArgs, HttpTestConfig config)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            var jsonData = clientSpan.ToJson(false);
-
-            var isOk = false;
-            var startOk = await webApiHelper.TestHttpPost(config.GetStartSpanApiUri(), jsonData, failExpiredMs).ConfigureAwait(false);
-            if (startOk)
-            {
-                isOk = await webApiHelper.TestHttpPost(config.GetFinishSpanApiUri(), jsonData, failExpiredMs).ConfigureAwait(false);
-            }
+            var jsonData = saveSpansArgs.ToJson(false);
+            var saveOk = await webApiHelper.TestHttpPost(config.GetSaveSpansApiUri(), jsonData, failExpiredMs).ConfigureAwait(false);
+            //var isOk = false;
+            //var startOk = await webApiHelper.TestHttpPost(config.GetStartSpanApiUri(), jsonData, failExpiredMs).ConfigureAwait(false);
+            //if (startOk)
+            //{
+            //    isOk = await webApiHelper.TestHttpPost(config.GetFinishSpanApiUri(), jsonData, failExpiredMs).ConfigureAwait(false);
+            //}
 
             stopwatch.Stop();
             var testResult = new TestResult();
-            testResult.Success = isOk;
+            testResult.Success = saveOk;
             testResult.ElapsedMs = stopwatch.ElapsedMilliseconds;
-            testResult.Message = string.Format("{0} => {1}, take {2:0.00} ms",
-                clientSpan.SpanId,
-                isOk ? "Success" : "Fail",
+            var itemsCount = saveSpansArgs.Items.Count;
+            var saveClientSpan = saveSpansArgs.Items.First();
+            testResult.Message = string.Format("{0}(1/{1}) => {2} , take {3:0.00} ms",
+                saveClientSpan.SpanId,
+                itemsCount,
+                saveOk ? "Success" : "Fail",
                 stopwatch.ElapsedMilliseconds);
             SimpleLog.Log(testResult.Message);
             return testResult;

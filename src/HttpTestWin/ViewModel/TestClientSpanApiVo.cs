@@ -43,7 +43,7 @@ namespace HttpTestWin.ViewModel
 
             Parallel.ForEach(saveSpansArgs, parallelOptions, (span) =>
             {
-                var testResult = AsyncHelper.RunSync(() => 
+                var testResult = AsyncHelper.RunSync(() =>
                     RunTestClientSpan(WebApiHelper, testResults.FailExpiredMs, span, config));
                 results.Add(testResult);
             });
@@ -78,12 +78,6 @@ namespace HttpTestWin.ViewModel
             stopwatch.Start();
             var jsonData = saveSpansArgs.ToJson(false);
             var saveOk = await webApiHelper.TestHttpPost(config.GetSaveSpansApiUri(), jsonData, failExpiredMs).ConfigureAwait(false);
-            //var isOk = false;
-            //var startOk = await webApiHelper.TestHttpPost(config.GetStartSpanApiUri(), jsonData, failExpiredMs).ConfigureAwait(false);
-            //if (startOk)
-            //{
-            //    isOk = await webApiHelper.TestHttpPost(config.GetFinishSpanApiUri(), jsonData, failExpiredMs).ConfigureAwait(false);
-            //}
 
             stopwatch.Stop();
             var testResult = new TestResult();
